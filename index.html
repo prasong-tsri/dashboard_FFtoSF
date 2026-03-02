@@ -183,8 +183,35 @@ table.ag-table tr:hover td{background:rgba(0,82,165,.06)}
 /* ── RESPONSIVE ── */
 @media(max-width:1100px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}
   .g12,.g21,.g13{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* ── DROPDOWN FILTERS ───────────────────────────────────────────────── */
+.filter-dropdown-wrap{position:relative;display:inline-flex;align-items:center}
+.filter-dd-btn{padding:.32rem .75rem;font-size:.73rem;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap;
+  display:flex;align-items:center;gap:.3rem;transition:all .15s}
+.filter-dd-btn:hover,.filter-dd-btn.has-filter{border-color:var(--accent);background:rgba(0,82,165,.08);color:var(--accent)}
+.filter-dd-btn .dd-cnt{background:var(--accent);color:#fff;border-radius:10px;
+  padding:0 .35rem;font-size:.63rem;font-weight:700;margin-left:.1rem}
+.filter-dd-panel{display:none;position:absolute;top:calc(100% + 5px);left:0;z-index:500;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  box-shadow:0 4px 24px rgba(0,52,165,.18);padding:.5rem;min-width:165px}
+.filter-dd-panel.open{display:block}
+.filter-dd-panel label{display:flex;align-items:center;gap:.4rem;padding:.28rem .4rem;
+  cursor:pointer;border-radius:4px;font-size:.78rem;white-space:nowrap;line-height:1.4}
+.filter-dd-panel label:hover{background:var(--surface2)}
+.filter-dd-panel input[type=checkbox],.filter-dd-panel input[type=radio]{margin:0;cursor:pointer}
+.dd-actions{display:flex;gap:.3rem;margin-bottom:.35rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.dd-actions button{flex:1;padding:.22rem .4rem;font-size:.7rem;border:1px solid var(--border);
+  border-radius:4px;cursor:pointer;background:var(--surface2);color:var(--text);font-family:inherit;transition:all .15s}
+.dd-actions button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+#ddAgency{min-width:270px}
+#ddAgency input[type=text]{width:100%;padding:.3rem .5rem;border:1px solid var(--border);
+  border-radius:4px;margin-bottom:.3rem;font-family:inherit;font-size:.78rem;background:var(--surface2)}
+#agencyListWrap{max-height:170px;overflow-y:auto}
+#ddCluster{min-width:250px}
 </style>
 </head>
+
 <body>
 <div class="layout">
 
@@ -201,40 +228,76 @@ table.ag-table tr:hover td{background:rgba(0,82,165,.06)}
 
 <!-- ════════ FILTER BAR ════════ -->
 <div class="filter-bar">
-  <!-- Year -->
-  <span class="filter-label">📅 ปี:</span>
-  <div class="year-pills" id="yearPills"></div>
 
-  <!-- Fund type -->
-  <span class="filter-label">💰 ทุน:</span>
-  <div class="filter-group" id="fundBtns">
-    <button class="btn-toggle active" data-fund="ALL" onclick="toggleFund('ALL',this)">ทั้งหมด</button>
-    <button class="btn-toggle ff" data-fund="FF" onclick="toggleFund('FF',this)">FF</button>
-    <button class="btn-toggle sf" data-fund="SF" onclick="toggleFund('SF',this)">SF</button>
-    <button class="btn-toggle" data-fund="RU" onclick="toggleFund('RU',this)">อื่นๆ</button>
+  <div class="filter-dropdown-wrap">
+    <button class="filter-dd-btn" id="ddYear-btn" onclick="toggleDD('ddYear')">
+      📅 ปีงบประมาณ <span class="dd-cnt" id="ddYear-cnt">7/7</span> ▾
+    </button>
+    <div class="filter-dd-panel" id="ddYear">
+      <div class="dd-actions">
+        <button onclick="selectAllYears()">เลือกทั้งหมด</button>
+        <button onclick="clearAllYears()">ล้างทั้งหมด</button>
+      </div>
+      <label><input type="checkbox" value="0" checked onchange="toggleYear(0,this)"> 2563</label>
+      <label><input type="checkbox" value="1" checked onchange="toggleYear(1,this)"> 2564</label>
+      <label><input type="checkbox" value="2" checked onchange="toggleYear(2,this)"> 2565</label>
+      <label><input type="checkbox" value="3" checked onchange="toggleYear(3,this)"> 2566</label>
+      <label><input type="checkbox" value="4" checked onchange="toggleYear(4,this)"> 2567</label>
+      <label><input type="checkbox" value="5" checked onchange="toggleYear(5,this)"> 2568</label>
+      <label><input type="checkbox" value="6" checked onchange="toggleYear(6,this)"> 2569</label>
+    </div>
   </div>
 
-  <!-- TRL -->
-  <span class="filter-label">🎯 TRL:</span>
-  <div class="filter-group" id="trlBtns">
-    <button class="btn-toggle active" data-trl="ALL" onclick="toggleTRL('ALL',this)">ทั้งหมด</button>
-    <button class="btn-toggle trl13" data-trl="1-3" onclick="toggleTRL('1-3',this)">TRL 1-3</button>
-    <button class="btn-toggle trl46" data-trl="4-6" onclick="toggleTRL('4-6',this)">TRL 4-6</button>
-    <button class="btn-toggle trl79" data-trl="7-9" onclick="toggleTRL('7-9',this)">TRL 7-9</button>
+  <div class="filter-dropdown-wrap">
+    <button class="filter-dd-btn" id="ddFund-btn" onclick="toggleDD('ddFund')">
+      💰 ประเภทงบ: <span id="ddFund-lbl">ทั้งหมด</span> ▾
+    </button>
+    <div class="filter-dd-panel" id="ddFund">
+      <label><input type="radio" name="fundR" value="ALL" checked onchange="setFund('ALL')"> ทั้งหมด</label>
+      <label><input type="radio" name="fundR" value="FF" onchange="setFund('FF')"> <span style="color:var(--ff);font-weight:600">FF</span> วิจัยพื้นฐาน</label>
+      <label><input type="radio" name="fundR" value="SF" onchange="setFund('SF')"> <span style="color:var(--sf);font-weight:600">SF</span> เชิงยุทธศาสตร์</label>
+      <label><input type="radio" name="fundR" value="RU" onchange="setFund('RU')"> <span style="color:var(--ru);font-weight:600">RU</span> / อื่นๆ</label>
+    </div>
   </div>
 
-  <!-- Agency -->
-  <span class="filter-label">🏢 หน่วยงาน:</span>
-  <select class="filter-select" id="agencyFilter" onchange="applyFilters()">
-    <option value="">— ทั้งหมด —</option>
-  </select>
+  <div class="filter-dropdown-wrap">
+    <button class="filter-dd-btn" id="ddTRL-btn" onclick="toggleDD('ddTRL')">
+      🎯 TRL: <span id="ddTRL-lbl">ทั้งหมด</span> ▾
+    </button>
+    <div class="filter-dd-panel" id="ddTRL">
+      <label><input type="radio" name="trlR" value="ALL" checked onchange="setTRL('ALL')"> ทั้งหมด</label>
+      <label><input type="radio" name="trlR" value="1-3" onchange="setTRL('1-3')"> TRL 1-3 ขั้นต้น</label>
+      <label><input type="radio" name="trlR" value="4-6" onchange="setTRL('4-6')"> TRL 4-6 กำลังพัฒนา 🟡</label>
+      <label><input type="radio" name="trlR" value="7-9" onchange="setTRL('7-9')"> TRL 7-9 พร้อมใช้ 🔴</label>
+      <label><input type="radio" name="trlR" value="4-9" onchange="setTRL('4-9')"> TRL 4-9 พร้อมต่อยอด ⭐</label>
+    </div>
+  </div>
 
-  <!-- Cluster pills -->
-  <span class="filter-label">📌 ประเด็น:</span>
-  <div class="cluster-pills" id="clusterPills"></div>
+  <div class="filter-dropdown-wrap">
+    <button class="filter-dd-btn" id="ddAgency-btn" onclick="toggleDD('ddAgency')">
+      🏢 หน่วยงาน: <span id="ddAgency-lbl">ทั้งหมด</span> ▾
+    </button>
+    <div class="filter-dd-panel" id="ddAgency">
+      <input type="text" id="agencySearch" placeholder="🔍 ค้นหาหน่วยงาน..." oninput="filterAgencyList(this.value)">
+      <div id="agencyListWrap"></div>
+    </div>
+  </div>
 
-  <div style="display:flex;gap:.4rem;margin-left:.4rem">
-    <button class="btn-reset" onclick="resetFilters()" title="รีเซ็ท filter ทั้งหมด">↺ รีเซ็ท</button>
+  <div class="filter-dropdown-wrap">
+    <button class="filter-dd-btn" id="ddCluster-btn" onclick="toggleDD('ddCluster')">
+      📌 ประเด็นวิจัย <span class="dd-cnt" id="ddCluster-cnt">8/8</span> ▾
+    </button>
+    <div class="filter-dd-panel" id="ddCluster">
+      <div class="dd-actions">
+        <button onclick="selectAllClusters()">เลือกทั้งหมด</button>
+        <button onclick="clearAllClusters()">ล้างทั้งหมด</button>
+      </div>
+      <div id="clusterCheckList"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:.4rem;margin-left:.5rem">
+    <button class="btn-reset" onclick="resetFilters()">↺ รีเซ็ท</button>
     <button class="btn-quickfilter" onclick="quickFilterFFReady()">🚀 FF→SF พร้อมต่อยอด</button>
     <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
   </div>
@@ -246,7 +309,7 @@ table.ag-table tr:hover td{background:rgba(0,82,165,.06)}
 <nav class="tabs">
   <button class="active" onclick="showTab('overview',this)">📊 ภาพรวม</button>
   <button onclick="showTab('transition',this)">🚀 FF→SF Transition</button>
-  <button onclick="showTab('heatmap',this)">🗺️ Heatmap พื้นที่</button>
+  <button onclick="showTab('heatmap',this)">🏢 Heatmap หน่วยงาน</button>
   <button onclick="showTab('issues',this)">📌 ประเด็นวิจัย</button>
   <button onclick="showTab('timeline',this)">📅 Timeline</button>
 </nav>
@@ -380,15 +443,31 @@ table.ag-table tr:hover td{background:rgba(0,82,165,.06)}
 </section>
 
 </div><!-- tab-body -->
-</div><!-- layout -->
+</div><!-- layout --><!-- ── TAB 3: HEATMAP หน่วยงาน ──────────────────────────────────────── -->
+<section id="tab-heatmap" class="tab-panel">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">🏢 Heatmap หน่วยงาน × ประเด็นวิจัย (Top 22 หน่วยงาน)
+      <div style="margin-left:auto;display:flex;gap:.4rem">
+        <button class="btn-toggle active" onclick="setHmMode('count',this)">จำนวนโครงการ</button>
+        <button class="btn-toggle" onclick="setHmMode('budget',this)">งบประมาณ (บาท)</button>
+        <button class="btn-toggle" onclick="setHmMode('trl49',this)">TRL 4-9 เท่านั้น</button>
+      </div>
+    </div>
+    <div class="heatmap-wrap" style="max-height:520px"><table class="heatmap" id="agencyClusterHeatmap"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📂 รายการโครงการ <span class="badge" style="font-weight:400">คลิก cell ในตารางด้านบนเพื่อดูรายการ</span></div>
+    <div class="proj-panel" id="projPanelHM">
+      <div style="color:var(--muted);font-size:.75rem;text-align:center;margin-top:2rem">← คลิก cell ในตาราง Heatmap เพื่อดูรายการโครงการ</div>
+    </div>
+  </div>
+</section>
 
-<!-- ════════════════════════════════════════════════════════════════════ -->
-<!-- DATA + JAVASCRIPT -->
-<!-- ════════════════════════════════════════════════════════════════════ -->
+
+
 <script src="data.js"></script>
 <script>
-// ── DECODE ROWS ───────────────────────────────────────────────────────────
-// cols: [id, ag_i, fund_i, trl, yr_offset, budget, stat_i, oecd_i, cl_i, area_i, cont]
+
 const FUNDS    = _RAW.funds;      // ['FF','SF','RU']
 const AGENCIES = _RAW.agencies;
 const OECDS    = _RAW.oecds;
@@ -405,10 +484,11 @@ const CI = {id:0,ag:1,fund:2,trl:3,yr:4,budget:5,stat:6,oecd:7,cl:8,area:9,cont:
 
 // ── FILTER STATE ──────────────────────────────────────────────────────────
 let F = {
-  years: new Set(YEARS.map((_,i)=>i)),  // 0-6 offsets
+  years: new Set(YEARS.map((_,i)=>i)),
   fund: 'ALL',
   trl: 'ALL',
   agency: '',
+  agencyIdx: -1,
   clusters: new Set(CLUSTERS.map(c=>c.id)),
   ffReady: false,
 };
@@ -420,8 +500,8 @@ let selectedCluster = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
 const fmtN  = n => new Intl.NumberFormat('th-TH').format(Math.round(n));
-const fmtM  = n => fmtN(Math.round(n/1e6));
-const fmtMd = n => (n/1e6).toFixed(1);
+const fmtM  = n => fmtN(n);
+const fmtMd = n => fmtN(n);
 function trlGroup(t){ return t>=7?'7-9': t>=4?'4-6': t>=1?'1-3':'N/A' }
 function trlColor(t){ return t>=7?'#ef4444': t>=4?'#f59e0b':'#64748b' }
 function fundColor(f){ return f===0?'#3b82f6': f===1?'#10b981':'#a855f7' }
@@ -445,73 +525,126 @@ function mkChart(id,type,labels,datasets,opts={}){
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 function init(){
-  buildYearPills();
-  buildClusterPills();
-  populateAgencyFilter();
+  buildYearDropdown();
+  buildClusterDropdown();
+  buildAgencyDropdown();
   applyFilters();
 }
 
-function buildYearPills(){
-  const wrap=document.getElementById('yearPills');
-  YEARS.forEach((y,i)=>{
-    const b=document.createElement('button');
-    b.className='year-pill active'; b.textContent=y;
-    b.onclick=()=>{ F.years.has(i)?F.years.delete(i):F.years.add(i);
-      b.classList.toggle('active',F.years.has(i)); applyFilters(); };
-    wrap.appendChild(b);
-  });
+function toggleDD(id){
+  const panel=document.getElementById(id);
+  const wasOpen=panel.classList.contains('open');
+  document.querySelectorAll('.filter-dd-panel.open').forEach(p=>p.classList.remove('open'));
+  if(!wasOpen) panel.classList.add('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.filter-dropdown-wrap'))
+    document.querySelectorAll('.filter-dd-panel.open').forEach(p=>p.classList.remove('open'));
+});
+
+function buildYearDropdown(){ updateYearCount(); }
+function updateYearCount(){
+  const c=document.getElementById('ddYear-cnt'); if(c) c.textContent=F.years.size+'/7';
+  const b=document.getElementById('ddYear-btn'); if(b) b.classList.toggle('has-filter',F.years.size<7);
+}
+function toggleYear(offset,cb){
+  if(cb.checked) F.years.add(offset); else F.years.delete(offset);
+  updateYearCount(); applyFilters();
+}
+function selectAllYears(){
+  F.years=new Set(YEARS.map((_,i)=>i));
+  document.querySelectorAll('#ddYear input[type=checkbox]').forEach(cb=>cb.checked=true);
+  updateYearCount(); applyFilters();
+}
+function clearAllYears(){
+  F.years=new Set();
+  document.querySelectorAll('#ddYear input[type=checkbox]').forEach(cb=>cb.checked=false);
+  updateYearCount(); applyFilters();
 }
 
-function buildClusterPills(){
-  const wrap=document.getElementById('clusterPills');
-  CLUSTERS.forEach(c=>{
-    const b=document.createElement('button');
-    b.className='cluster-pill active'; b.textContent=c.th; b.title=c.en;
-    b.style.setProperty('--cc',c.color);
-    b.onclick=()=>{
-      if(F.clusters.has(c.id)) F.clusters.delete(c.id);
-      else F.clusters.add(c.id);
-      b.classList.toggle('active',F.clusters.has(c.id));
-      if(b.classList.contains('active')) b.style.background=c.color+'33';
-      else b.style.background='';
-      applyFilters();
-    };
-    b.style.background=c.color+'33'; b.style.borderColor=c.color+'66'; b.style.color=c.color;
-    wrap.appendChild(b);
-  });
-}
-
-function populateAgencyFilter(){
-  const sel=document.getElementById('agencyFilter');
-  AGENCIES.forEach(a=>{
-    const o=document.createElement('option');
-    o.value=a; o.textContent=a.length>40?a.substring(0,40)+'…':a;
-    sel.appendChild(o);
-  });
-}
-
-function toggleFund(v,btn){
+function setFund(v){
   F.fund=v; F.ffReady=false;
-  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); applyFilters();
+  const l=document.getElementById('ddFund-lbl'); if(l) l.textContent=v==='ALL'?'ทั้งหมด':v;
+  const b=document.getElementById('ddFund-btn'); if(b) b.classList.toggle('has-filter',v!=='ALL');
+  applyFilters();
 }
-function toggleTRL(v,btn){
+function setTRL(v){
   F.trl=v; F.ffReady=false;
-  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); applyFilters();
+  const m={'ALL':'ทั้งหมด','1-3':'TRL 1-3','4-6':'TRL 4-6','7-9':'TRL 7-9','4-9':'TRL 4-9'};
+  const l=document.getElementById('ddTRL-lbl'); if(l) l.textContent=m[v]||v;
+  const b=document.getElementById('ddTRL-btn'); if(b) b.classList.toggle('has-filter',v!=='ALL');
+  applyFilters();
 }
+
+function buildAgencyDropdown(){
+  const wrap=document.getElementById('agencyListWrap'); if(!wrap) return;
+  const allLbl=document.createElement('label');
+  allLbl.innerHTML='<input type="radio" name="agR" value="" checked onchange="setAgency(-1)"> — ทั้งหมด —';
+  wrap.appendChild(allLbl);
+  AGENCIES.forEach((a,idx)=>{
+    const lbl=document.createElement('label'); lbl.title=a;
+    const s=a.length>36?a.substring(0,36)+'…':a;
+    lbl.innerHTML='<input type="radio" name="agR" value="'+idx+'" onchange="setAgency('+idx+')"> '+s;
+    wrap.appendChild(lbl);
+  });
+}
+function filterAgencyList(q){
+  const lq=q.toLowerCase();
+  document.querySelectorAll('#agencyListWrap label').forEach(lbl=>{
+    lbl.style.display=(lbl.title.toLowerCase().includes(lq)||lbl.textContent.toLowerCase().includes(lq))?'':'none';
+  });
+}
+function setAgency(idx){
+  F.agencyIdx=idx;
+  const name=idx>=0?AGENCIES[idx]:'';
+  const l=document.getElementById('ddAgency-lbl'); if(l) l.textContent=name?name.substring(0,14)+(name.length>14?'…':''):'ทั้งหมด';
+  const b=document.getElementById('ddAgency-btn'); if(b) b.classList.toggle('has-filter',idx>=0);
+  applyFilters();
+}
+
+function buildClusterDropdown(){
+  const wrap=document.getElementById('clusterCheckList'); if(!wrap) return;
+  CLUSTERS.forEach(c=>{
+    const lbl=document.createElement('label');
+    lbl.style.cssText='border-left:3px solid '+c.color+';padding-left:.4rem;margin:.1rem 0';
+    lbl.innerHTML='<input type="checkbox" checked onchange="toggleCluster(''+c.id+'',this)"> <span style="color:'+c.color+'">'+c.th+'</span>';
+    wrap.appendChild(lbl);
+  });
+  updateClusterCount();
+}
+function updateClusterCount(){
+  const c=document.getElementById('ddCluster-cnt'); if(c) c.textContent=F.clusters.size+'/'+CLUSTERS.length;
+  const b=document.getElementById('ddCluster-btn'); if(b) b.classList.toggle('has-filter',F.clusters.size<CLUSTERS.length);
+}
+function toggleCluster(cid,cb){
+  if(cb.checked) F.clusters.add(cid); else F.clusters.delete(cid);
+  updateClusterCount(); applyFilters();
+}
+function selectAllClusters(){
+  F.clusters=new Set(CLUSTERS.map(c=>c.id));
+  document.querySelectorAll('#clusterCheckList input').forEach(cb=>cb.checked=true);
+  updateClusterCount(); applyFilters();
+}
+function clearAllClusters(){
+  F.clusters=new Set();
+  document.querySelectorAll('#clusterCheckList input').forEach(cb=>cb.checked=false);
+  updateClusterCount(); applyFilters();
+}
+
 function quickFilterFFReady(){
   F.fund='FF'; F.trl='4-9'; F.ffReady=true;
-  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
-  document.querySelector('[data-fund="FF"]').classList.add('active');
-  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  const r1=document.querySelector('#ddFund input[value="FF"]'); if(r1) r1.checked=true;
+  const l1=document.getElementById('ddFund-lbl'); if(l1) l1.textContent='FF';
+  const b1=document.getElementById('ddFund-btn'); if(b1) b1.classList.add('has-filter');
+  const r2=document.querySelector('#ddTRL input[value="4-9"]'); if(r2) r2.checked=true;
+  const l2=document.getElementById('ddTRL-lbl'); if(l2) l2.textContent='TRL 4-9';
+  const b2=document.getElementById('ddTRL-btn'); if(b2) b2.classList.add('has-filter');
   applyFilters();
 }
 
 // ── CORE FILTER ENGINE ────────────────────────────────────────────────────
 function applyFilters(){
-  const agSel = document.getElementById('agencyFilter').value;
-  const agIdx = agSel ? AGENCIES.indexOf(agSel) : -1;
+  const agIdx = (F.agencyIdx !== undefined) ? F.agencyIdx : -1;
 
   filteredRows = RAW.filter(r=>{
     if(!F.years.has(r[CI.yr])) return false;
@@ -580,8 +713,8 @@ function renderOverview(){
   const ffRdy=rows.filter(r=>FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4).length;
   document.getElementById('k-total').textContent=fmtN(total);
   document.getElementById('k-total-sub').textContent='โครงการทั้งหมด (หลังกรอง)';
-  document.getElementById('k-budget').textContent=fmtM(totalBudget);
-  document.getElementById('k-budget-sub').textContent=fmtN(totalBudget)+' บาท';
+  document.getElementById('k-budget').textContent=fmtN(totalBudget);
+  document.getElementById('k-budget-sub').textContent='งบประมาณรวม';
   document.getElementById('k-agency').textContent=fmtN(agencies);
   document.getElementById('k-ready').textContent=fmtN(rdy);
   document.getElementById('k-ready-sub').textContent=(total?((rdy/total*100).toFixed(1)):'0')+'% ของทั้งหมด';
@@ -663,7 +796,7 @@ function renderTransition(){
       x:{min:0,max:10,title:{display:true,text:'TRL Level',color:'#5B7094'},ticks:{color:'#5B7094',stepSize:1},grid:{color:'rgba(0,0,0,.07)'}},
       y:{title:{display:true,text:'จำนวนโครงการ',color:'#5B7094'},ticks:{color:'#5B7094'},grid:{color:'rgba(0,0,0,.07)'}},
     }},
-    ttLabel:ctx=>{const d=ctx.raw; return `TRL${ctx.parsed.x}: ${fmtN(ctx.parsed.y)} โครงการ | งบ ${fmtM(d.budget||0)} ล้าน`}
+    ttLabel:ctx=>{const d=ctx.raw; return `TRL${ctx.parsed.x}: ${fmtN(ctx.parsed.y)} โครงการ | งบ ${fmtM(d.budget||0)} บาท`}
   });
 
   // Funnel
@@ -754,7 +887,7 @@ function showHeatmapProjects(agIdx, colKey){
         <div class="pmeta">
           <span class="badge-trl ${fundBadge}">${FUNDS[r[CI.fund]]}</span>
           <span class="badge-trl ${trlBadge}">TRL${r[CI.trl]}</span>
-          <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtM(r[CI.budget])} ล้าน</span>
+          <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtN(r[CI.budget])} บาท</span>
         </div>
       </div>`;
     }).join('')+(proj.length>50?`<div style="color:var(--muted);font-size:.7rem;padding:.4rem">... และอีก ${proj.length-50} โครงการ</div>`:'');
@@ -766,7 +899,7 @@ function renderAgTable(topAgIdxs, hmData){
     const d=hmData[ai];
     const rdy=d.ff46+d.ff79;
     const budget=filteredRows.filter(r=>r[CI.ag]===ai).reduce((s,r)=>s+r[CI.budget],0);
-    return [AGENCIES[ai],d.ff13,d.ff46,d.ff79,d.sf79,rdy,Math.round(budget/1e6)];
+    return [AGENCIES[ai],d.ff13,d.ff46,d.ff79,d.sf79,rdy,budget];
   });
   rows2.sort((a,b)=>agSortAsc?(a[agSortCol]-b[agSortCol]):(b[agSortCol]-a[agSortCol]));
   
@@ -787,7 +920,7 @@ function sortAgTable(col){
   agSortCol=col; agSortAsc=!agSortAsc; renderTransition();
 }
 
-// ── TAB 3: HEATMAP AREA ──────────────────────────────────────────────────
+// ── TAB 3: HEATMAP AGENCY × CLUSTER ────────────────────────────────────────
 function setHmMode(mode,btn){
   hmMode=mode;
   document.querySelectorAll('[onclick^="setHmMode"]').forEach(b=>b.classList.remove('active'));
@@ -797,39 +930,66 @@ function setHmMode(mode,btn){
 
 function renderHeatmap(){
   const rows=filteredRows;
-  // Group top 20 areas
-  const areaCt={};
-  rows.forEach(r=>{ if(r[CI.area]>0) areaCt[r[CI.area]]=(areaCt[r[CI.area]]||0)+1; });
-  const topAreas=Object.entries(areaCt).sort((a,b)=>b[1]-a[1]).slice(0,22).map(([i])=>parseInt(i));
+  const agCt={};
+  rows.forEach(r=>{ agCt[r[CI.ag]]=(agCt[r[CI.ag]]||0)+1; });
+  const topAgIdxs=Object.entries(agCt).sort((a,b)=>b[1]-a[1]).slice(0,22).map(([i])=>parseInt(i));
 
-  // Area × Cluster matrix
-  const mat={}; // {areaIdx: {clIdx: value}}
-  topAreas.forEach(ai=>{ mat[ai]={}; CLUSTERS.forEach((_,ci)=>mat[ai][ci]=0); });
+  const mat={};
+  topAgIdxs.forEach(ai=>{ mat[ai]={}; CLUSTERS.forEach((_,ci)=>{ mat[ai][ci]=0; }); });
   rows.forEach(r=>{
-    if(!mat[r[CI.area]])return;
+    if(!mat[r[CI.ag]])return;
     if(hmMode==='trl49'&&r[CI.trl]<4)return;
-    const v = hmMode==='budget'?r[CI.budget]:1;
-    mat[r[CI.area]][r[CI.cl]]=(mat[r[CI.area]][r[CI.cl]]||0)+v;
+    const v=hmMode==='budget'?r[CI.budget]:1;
+    mat[r[CI.ag]][r[CI.cl]]=(mat[r[CI.ag]][r[CI.cl]]||0)+v;
   });
 
   let maxVal=1;
-  topAreas.forEach(ai=>CLUSTERS.forEach((_,ci)=>{ if(mat[ai][ci]>maxVal)maxVal=mat[ai][ci]; }));
+  topAgIdxs.forEach(ai=>CLUSTERS.forEach((_,ci)=>{ if(mat[ai][ci]>maxVal)maxVal=mat[ai][ci]; }));
 
-  let tbl='<thead><tr><th>พื้นที่วิจัย</th>'+CLUSTERS.map(c=>`<th style="color:${c.color}">${c.th.substring(0,10)}</th>`).join('')+'<th>รวม</th></tr></thead><tbody>';
-  topAreas.forEach(ai=>{
-    const areaName=AREAS[ai]||`พื้นที่ ${ai}`;
-    tbl+=`<tr><td class="row-label">${areaName}</td>`;
+  let tbl='<thead><tr><th>หน่วยงาน (Top 22)</th>'+
+    CLUSTERS.map(c=>'<th style="color:'+c.color+';font-size:.67rem">'+c.th.substring(0,9)+'</th>').join('')+
+    '<th>รวม</th></tr></thead><tbody>';
+
+  topAgIdxs.forEach(ai=>{
+    const agName=AGENCIES[ai]||('หน่วยงาน '+ai);
+    const shortName=agName.length>26?agName.substring(0,26)+'…':agName;
+    tbl+='<tr><td class="row-label" title="'+agName+'">'+shortName+'</td>';
     let rowTotal=0;
     CLUSTERS.forEach((c,ci)=>{
       const v=mat[ai][ci]||0; rowTotal+=v;
       const opacity=v?Math.min((v/maxVal)*0.9+0.1,0.9):0;
-      const display=hmMode==='budget'&&v>0?fmtMd(v):v||'';
-      tbl+=`<td style="background:${c.color}${opacity>0?Math.round(opacity*255).toString(16).padStart(2,'0'):'00'}">${display}</td>`;
+      const bgHex=opacity>0?Math.round(opacity*255).toString(16).padStart(2,'0'):'00';
+      const display=(hmMode==='budget'&&v>0)?fmtN(v):(v||'');
+      tbl+='<td style="background:'+c.color+bgHex+';cursor:'+(v?'pointer':'default')+';font-size:.72rem"'+
+           (v?' onclick="showAgClProjects('+ai+','+ci+')"':'')+
+           ' title="'+shortName+' | '+c.th+': '+v+' โครงการ'+(hmMode==='budget'&&v?' | '+fmtN(v)+' บาท':'')+'">'+
+           display+'</td>';
     });
-    tbl+=`<td style="color:var(--muted);font-weight:700">${hmMode==='budget'?fmtMd(rowTotal):rowTotal}</td></tr>`;
+    tbl+='<td style="color:var(--muted);font-weight:700;font-size:.72rem">'+(hmMode==='budget'?fmtN(rowTotal):rowTotal)+'</td></tr>';
   });
   tbl+='</tbody>';
-  document.getElementById('areaClusterHeatmap').innerHTML=tbl;
+  document.getElementById('agencyClusterHeatmap').innerHTML=tbl;
+}
+
+function showAgClProjects(agIdx,clIdx){
+  const proj=filteredRows.filter(r=>r[CI.ag]===agIdx&&r[CI.cl]===clIdx);
+  const ag=AGENCIES[agIdx]||''; const cl=CLUSTERS[clIdx];
+  const panel=document.getElementById('projPanelHM'); if(!panel)return;
+  panel.innerHTML='<h4 style="margin-bottom:.6rem;color:'+cl.color+'">📂 '+ag.substring(0,35)+' | '+cl.th+' ('+proj.length+' โครงการ)</h4>'+
+    proj.slice(0,60).map(r=>{
+      const name=NAMES[String(r[CI.id])]||('โครงการ #'+r[CI.id]);
+      const f=FUNDS[r[CI.fund]].toLowerCase();
+      const tg=trlGroup(r[CI.trl]).replace('-','');
+      const isRdy=FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4;
+      return '<div class="proj-item"'+(isRdy?' style="border-left:2px solid var(--trl46)"':'')+'>'+
+        '<div class="pid">#'+r[CI.id]+(isRdy?' ⭐':'')+'</div>'+
+        '<div class="pname">'+name+'</div>'+
+        '<div class="pmeta">'+
+          '<span class="badge-trl badge-'+f+'">'+FUNDS[r[CI.fund]]+'</span> '+
+          '<span class="badge-trl badge-trl'+tg+'">TRL'+r[CI.trl]+'</span> '+
+          '<span style="color:var(--muted)">'+YEARS[r[CI.yr]]+' | '+fmtN(r[CI.budget])+' บาท</span>'+
+        '</div></div>';
+    }).join('')+(proj.length>60?'<div style="padding:.5rem;color:var(--muted);font-size:.7rem">... และอีก '+(proj.length-60)+' โครงการ</div>':'');
 }
 
 // ── TAB 4: ISSUES ────────────────────────────────────────────────────────
@@ -912,7 +1072,7 @@ function drillIssue(ci, cRows, c){
       <div class="pmeta">
         <span class="badge-trl badge-${f}">${FUNDS[r[CI.fund]]}</span>
         <span class="badge-trl badge-trl${tg}">TRL${r[CI.trl]}</span>
-        <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtM(r[CI.budget])} ล้าน</span>
+        <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtN(r[CI.budget])} บาท</span>
       </div>
     </div>`;
   }).join('')+(cRows.length>60?`<div style="padding:.5rem;color:var(--muted);font-size:.7rem">... และอีก ${cRows.length-60} โครงการ</div>`:'');
@@ -935,8 +1095,8 @@ function renderTimeline(){
   ],{extra:{scales:{x:{grid:{display:false},ticks:{color:'#5B7094'}},y:{grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
 
   mkChart('c-tl-budget','bar',yrs,[
-    {label:'FF (ล้าน)',data:yrBFF.map(v=>Math.round(v/1e6)),backgroundColor:'#3b82f6bb',borderRadius:4},
-    {label:'SF (ล้าน)',data:yrBSF.map(v=>Math.round(v/1e6)),backgroundColor:'#10b981bb',borderRadius:4},
+    {label:'FF (บาท)',data:yrBFF.map(v=>v),backgroundColor:'#3b82f6bb',borderRadius:4},
+    {label:'SF (บาท)',data:yrBSF.map(v=>v),backgroundColor:'#10b981bb',borderRadius:4},
   ],{extra:{scales:{x:{grid:{display:false},ticks:{color:'#5B7094'}},y:{grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
 
   // Issue × Year heatmap
@@ -997,35 +1157,28 @@ function exportCSV(){
 
 // ── RESET FILTERS ────────────────────────────────────────────────────────
 function resetFilters(){
-  // Reset year: all selected
-  F.years = new Set(YEARS.map((_,i)=>i));
-  document.querySelectorAll('.year-pill').forEach(b=>b.classList.add('active'));
-
-  // Reset fund
-  F.fund = 'ALL'; F.ffReady = false;
-  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
-  document.querySelector('[data-fund="ALL"]').classList.add('active');
-
-  // Reset TRL
-  F.trl = 'ALL';
-  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
-  document.querySelector('[data-trl="ALL"]').classList.add('active');
-
-  // Reset agency
-  document.getElementById('agencyFilter').value = '';
-
-  // Reset clusters: all selected
-  F.clusters = new Set(CLUSTERS.map(c=>c.id));
-  document.querySelectorAll('.cluster-pill').forEach((b,i)=>{
-    b.classList.add('active');
-    b.style.background = CLUSTERS[i].color+'33';
-  });
-
-  // Flash the reset button
-  const btn = document.querySelector('.btn-reset');
-  btn.style.background='#FFEDED'; btn.textContent='✓ รีเซ็ทแล้ว';
-  setTimeout(()=>{ btn.style.background=''; btn.innerHTML='↺ รีเซ็ท'; }, 800);
-
+  F.years=new Set(YEARS.map((_,i)=>i));
+  document.querySelectorAll('#ddYear input[type=checkbox]').forEach(cb=>cb.checked=true);
+  updateYearCount();
+  F.fund='ALL'; F.ffReady=false;
+  const fa=document.querySelector('#ddFund input[value="ALL"]'); if(fa) fa.checked=true;
+  const fl=document.getElementById('ddFund-lbl'); if(fl) fl.textContent='ทั้งหมด';
+  const fb=document.getElementById('ddFund-btn'); if(fb) fb.classList.remove('has-filter');
+  F.trl='ALL';
+  const ta=document.querySelector('#ddTRL input[value="ALL"]'); if(ta) ta.checked=true;
+  const tl=document.getElementById('ddTRL-lbl'); if(tl) tl.textContent='ทั้งหมด';
+  const tb=document.getElementById('ddTRL-btn'); if(tb) tb.classList.remove('has-filter');
+  F.agencyIdx=-1;
+  const aa=document.querySelector('#agencyListWrap input[value=""]'); if(aa) aa.checked=true;
+  const al=document.getElementById('ddAgency-lbl'); if(al) al.textContent='ทั้งหมด';
+  const ab=document.getElementById('ddAgency-btn'); if(ab) ab.classList.remove('has-filter');
+  const as2=document.getElementById('agencySearch'); if(as2){as2.value=''; filterAgencyList('');}
+  F.clusters=new Set(CLUSTERS.map(c=>c.id));
+  document.querySelectorAll('#clusterCheckList input').forEach(cb=>cb.checked=true);
+  updateClusterCount();
+  const btn=document.querySelector('.btn-reset');
+  if(btn){btn.style.background='#FFEDED'; btn.textContent='✓ รีเซ็ทแล้ว';
+    setTimeout(()=>{ btn.style.background=''; btn.innerHTML='↺ รีเซ็ท'; }, 800);}
   applyFilters();
 }
 
