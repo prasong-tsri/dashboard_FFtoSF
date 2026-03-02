@@ -1,1 +1,1036 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard วิจัย ววน. 2563-2569 | FF→SF Transition</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── CSS VARIABLES ────────────────────────────────────────────────────── */
+:root{
+  --bg:#EFF3F9;--surface:#FFFFFF;--surface2:#E8EFF8;--border:#C5D4E8;
+  --text:#1A2B4A;--muted:#5B7094;--accent:#0052A5;
+  --ff:#0052A5;--sf:#0E7C4A;--ru:#7B5EA7;
+  --trl13:#6B8199;--trl46:#F47920;--trl79:#D32F2F;
+  --c1:#1A8C3E;--c2:#C0392B;--c3:#E07B00;--c4:#0052A5;
+  --c5:#6A3D9A;--c6:#0077A8;--c7:#C05000;--c8:#4A6070;
+  --radius:10px; --shadow:0 2px 16px rgba(0,52,165,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+/* ── LAYOUT ── */
+.layout{display:flex;height:100vh;flex-direction:column}
+/* ── HEADER ── */
+header{background:linear-gradient(90deg,#003480,#0052A5,#1470C8);padding:.7rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  border-bottom:1px solid var(--border);box-shadow:var(--shadow);z-index:200}
+.header-brand{display:flex;align-items:center;gap:.8rem}
+.header-logo{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:1px solid rgba(255,255,255,.4)}
+header h1{font-size:.95rem;font-weight:700;color:#fff}
+header h1 span{font-size:.72rem;opacity:.7;font-weight:400;display:block}
+.header-right{font-size:.72rem;color:rgba(255,255,255,.75);text-align:right;line-height:1.6}
+/* ── FILTER BAR ── */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:.6rem 1.5rem;display:flex;align-items:center;flex-wrap:wrap;gap:.6rem;flex-shrink:0;z-index:150}
+.filter-label{font-size:.72rem;color:var(--muted);font-weight:600;white-space:nowrap}
+.filter-group{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.btn-toggle{padding:.3rem .7rem;font-size:.72rem;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn-toggle.active{border-color:var(--accent);color:var(--accent);background:rgba(0,82,165,.1)}
+.btn-toggle.ff.active{border-color:var(--ff);color:var(--ff);background:rgba(0,82,165,.1)}
+.btn-toggle.sf.active{border-color:var(--sf);color:var(--sf);background:rgba(14,124,74,.1)}
+.btn-toggle.trl13.active{border-color:var(--trl13);color:#4A5D6E;background:rgba(107,129,153,.12)}
+.btn-toggle.trl46.active{border-color:var(--trl46);color:var(--trl46);background:rgba(245,158,11,.1)}
+.btn-toggle.trl79.active{border-color:var(--trl79);color:var(--trl79);background:rgba(239,68,68,.1)}
+select.filter-select{padding:.3rem .6rem;font-size:.72rem;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);font-family:inherit;cursor:pointer;max-width:200px}
+.filter-summary{margin-left:auto;background:rgba(0,82,165,.08);border:1px solid rgba(0,82,165,.25);
+  padding:.3rem .8rem;border-radius:20px;font-size:.72rem;color:var(--accent);white-space:nowrap}
+.btn-quickfilter{padding:.3rem .9rem;font-size:.72rem;background:linear-gradient(90deg,#F47920,#D32F2F);
+  border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:700;font-family:inherit;white-space:nowrap}
+.btn-export{padding:.3rem .9rem;font-size:.72rem;background:var(--surface2);
+  border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-family:inherit}
+.btn-export:hover{color:var(--accent);border-color:var(--accent);background:rgba(0,82,165,.08)}
+/* ── YEAR PILLS ── */
+.year-pills{display:flex;gap:.3rem}
+.year-pill{padding:.2rem .5rem;font-size:.68rem;border-radius:4px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.year-pill.active{background:rgba(0,82,165,.12);border-color:var(--accent);color:var(--accent)}
+/* ── CLUSTER PILLS ── */
+.cluster-pills{display:flex;gap:.3rem;flex-wrap:wrap}
+.cluster-pill{padding:.2rem .6rem;font-size:.68rem;border-radius:12px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.cluster-pill.active{color:#fff}
+/* ── TABS ── */
+nav.tabs{background:var(--surface);border-bottom:2px solid var(--border);
+  display:flex;padding:0 1.5rem;flex-shrink:0;overflow-x:auto}
+nav.tabs button{padding:.7rem 1.2rem;font-size:.82rem;font-family:inherit;
+  background:none;border:none;border-bottom:3px solid transparent;
+  cursor:pointer;color:var(--muted);font-weight:500;white-space:nowrap;transition:all .2s}
+nav.tabs button:hover{color:var(--text)}
+nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;background:rgba(0,82,165,.05)}
+/* ── MAIN CONTENT ── */
+.tab-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+/* ── GRID ── */
+.grid{display:grid;gap:1rem}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.g12{grid-template-columns:1fr 2fr}
+.g21{grid-template-columns:2fr 1fr}
+.g13{grid-template-columns:1fr 3fr}
+.span2{grid-column:span 2}
+.span3{grid-column:span 3}
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:0 1px 6px rgba(0,52,165,.08)}
+.card-title{font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:.8rem;letter-spacing:.01em;
+  display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);padding-bottom:.5rem}
+.card-title .badge{font-size:.65rem;background:var(--surface2);color:var(--muted);
+  padding:.1rem .4rem;border-radius:10px;font-weight:500}
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.8rem;margin-bottom:1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.9rem 1rem;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(0,52,165,.08)}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent)}
+.kpi.ff::before{background:var(--ff)}
+.kpi.sf::before{background:var(--sf)}
+.kpi.warn::before{background:var(--trl79)}
+.kpi.amber::before{background:var(--trl46)}
+.kpi-icon{font-size:1.3rem;margin-bottom:.3rem}
+.kpi-val{font-size:1.8rem;font-weight:800;color:var(--accent);line-height:1}
+.kpi-lbl{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+.kpi-sub{font-size:.68rem;color:#0052A5;margin-top:.2rem;font-weight:500}
+/* ── CHART WRAPPER ── */
+.chart-wrap{position:relative}
+.h200{height:200px}.h240{height:240px}.h280{height:280px}.h320{height:320px}
+.h360{height:360px}.h400{height:400px}.h440{height:440px}.h500{height:500px}
+/* ── HEATMAP ── */
+.heatmap-wrap{overflow:auto;max-height:420px}
+table.heatmap{border-collapse:collapse;width:100%;font-size:.68rem}
+table.heatmap th{padding:.3rem .5rem;background:var(--surface2);color:var(--muted);
+  font-weight:600;white-space:nowrap;position:sticky;top:0;z-index:10;border:1px solid var(--border);color:#1A2B4A}
+table.heatmap td{padding:.25rem .4rem;border:1px solid rgba(0,0,0,.07);
+  text-align:center;cursor:pointer;transition:all .15s;min-width:44px}
+table.heatmap td:hover{outline:2px solid var(--accent);outline-offset:-1px}
+table.heatmap td.row-label{text-align:left;white-space:nowrap;background:#EBF2FA;border-right:2px solid var(--border);
+  position:sticky;left:0;font-size:.65rem;color:var(--muted);padding-right:.6rem;min-width:160px}
+/* ── FUNNEL ── */
+.funnel-wrap{display:flex;flex-direction:column;gap:.4rem;padding:.5rem}
+.funnel-stage{display:flex;align-items:center;gap:.8rem}
+.funnel-bar-wrap{flex:1;height:28px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.funnel-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 .6rem;
+  font-size:.7rem;font-weight:700;color:#fff;transition:width .5s}
+.funnel-label{font-size:.72rem;color:var(--text);width:160px;text-align:right;font-weight:500}
+.funnel-count{font-size:.75rem;font-weight:700;color:var(--text);width:60px}
+/* ── PROJECT LIST PANEL ── */
+.proj-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.8rem;max-height:380px;overflow-y:auto}
+.proj-panel h4{font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:.6rem;padding:.3rem .5rem;background:rgba(0,82,165,.07);border-radius:6px}
+.proj-item{padding:.4rem .5rem;border-bottom:1px solid #D8E6F3;cursor:pointer}
+.proj-item:hover{background:rgba(0,82,165,.06)}
+.proj-item .pid{font-size:.62rem;color:var(--muted);font-family:monospace}
+.proj-item .pname{font-size:.73rem;color:#1A2B4A;line-height:1.3;font-weight:500}
+.proj-item .pmeta{font-size:.64rem;color:var(--muted);margin-top:.2rem;display:flex;gap:.5rem;flex-wrap:wrap}
+.badge-trl{padding:.1rem .35rem;border-radius:3px;font-size:.6rem;font-weight:700}
+.badge-ff{background:rgba(0,82,165,.15);color:#003D8F}
+.badge-sf{background:rgba(14,124,74,.15);color:#0A5C36}
+.badge-ru{background:rgba(123,94,167,.15);color:#5A3D8F}
+.badge-trl13{background:rgba(107,129,153,.15);color:#4A5D6E}
+.badge-trl46{background:rgba(244,121,32,.15);color:#A84F00}
+.badge-trl79{background:rgba(211,47,47,.15);color:#9B1B1B}
+/* ── ISSUE CARDS ── */
+.issue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.7rem}
+.issue-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.8rem;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.issue-card:hover,.issue-card.selected{border-left-color:var(--card-color,var(--accent));
+  background:#EAF1FB;box-shadow:0 2px 12px rgba(0,82,165,.12)}
+.issue-card .ic-title{font-size:.8rem;font-weight:700;margin-bottom:.4rem}
+.issue-card .ic-count{font-size:1.3rem;font-weight:800;color:var(--text)}
+.issue-card .ic-sub{font-size:.65rem;color:var(--muted);margin-bottom:.4rem}
+.ic-trl-bar{display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px;margin-top:.4rem}
+.ic-trl-bar div{height:100%;border-radius:1px}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#E4EBF5}
+::-webkit-scrollbar-thumb{background:#A0B4CC;border-radius:3px}
+/* ── AGENCY TABLE ── */
+table.ag-table{width:100%;border-collapse:collapse;font-size:.72rem}
+table.ag-table th{background:var(--surface2);padding:.35rem .5rem;text-align:left;
+  color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);cursor:pointer}
+table.ag-table th:hover{color:var(--accent);background:rgba(0,82,165,.08)}
+table.ag-table td{padding:.3rem .5rem;border-bottom:1px solid rgba(0,0,0,.07)}
+table.ag-table tr:hover td{background:rgba(0,82,165,.06)}
+.cell-bar{height:6px;background:var(--trl46);border-radius:3px;min-width:2px}
+/* ── TIMELINE ── */
+.tl-slider-wrap{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
+.tl-slider-wrap input[type=range]{flex:1;accent-color:var(--accent)}
+/* ── EMPTY STATE ── */
+.empty-state{display:flex;align-items:center;justify-content:center;height:200px;
+  color:var(--muted);font-size:.8rem;flex-direction:column;gap:.5rem}
+/* ── RESET BUTTON ── */
+.btn-reset{padding:.3rem .9rem;font-size:.72rem;background:#fff;
+  border:1px solid #C5D4E8;border-radius:6px;color:#D32F2F;cursor:pointer;
+  font-family:'Sarabun','Segoe UI',sans-serif;font-weight:700;white-space:nowrap;
+  transition:all .15s;display:flex;align-items:center;gap:.3rem}
+.btn-reset:hover{background:#FFF0F0;border-color:#D32F2F;box-shadow:0 1px 4px rgba(211,47,47,.15)}
+.btn-reset:active{transform:scale(.97)}
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}
+  .g12,.g21,.g13{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="layout">
 
+<!-- ════════ HEADER ════════ -->
+<header>
+  <div class="header-brand">
+    <div class="header-logo">🔬</div>
+    <h1>Dashboard วิจัย ววน. | FF→SF Transition Intelligence
+      <span>ฐานข้อมูลโครงการ 2563–2569 · วิเคราะห์โดย Senior Data Analyst</span>
+    </h1>
+  </div>
+  <div class="header-right">ข้อมูล: ข้อมูลโครงการ63-69_U1_08122568<br>อัปเดต: 8 ธ.ค. 2568</div>
+</header>
+
+<!-- ════════ FILTER BAR ════════ -->
+<div class="filter-bar">
+  <!-- Year -->
+  <span class="filter-label">📅 ปี:</span>
+  <div class="year-pills" id="yearPills"></div>
+
+  <!-- Fund type -->
+  <span class="filter-label">💰 ทุน:</span>
+  <div class="filter-group" id="fundBtns">
+    <button class="btn-toggle active" data-fund="ALL" onclick="toggleFund('ALL',this)">ทั้งหมด</button>
+    <button class="btn-toggle ff" data-fund="FF" onclick="toggleFund('FF',this)">FF</button>
+    <button class="btn-toggle sf" data-fund="SF" onclick="toggleFund('SF',this)">SF</button>
+    <button class="btn-toggle" data-fund="RU" onclick="toggleFund('RU',this)">อื่นๆ</button>
+  </div>
+
+  <!-- TRL -->
+  <span class="filter-label">🎯 TRL:</span>
+  <div class="filter-group" id="trlBtns">
+    <button class="btn-toggle active" data-trl="ALL" onclick="toggleTRL('ALL',this)">ทั้งหมด</button>
+    <button class="btn-toggle trl13" data-trl="1-3" onclick="toggleTRL('1-3',this)">TRL 1-3</button>
+    <button class="btn-toggle trl46" data-trl="4-6" onclick="toggleTRL('4-6',this)">TRL 4-6</button>
+    <button class="btn-toggle trl79" data-trl="7-9" onclick="toggleTRL('7-9',this)">TRL 7-9</button>
+  </div>
+
+  <!-- Agency -->
+  <span class="filter-label">🏢 หน่วยงาน:</span>
+  <select class="filter-select" id="agencyFilter" onchange="applyFilters()">
+    <option value="">— ทั้งหมด —</option>
+  </select>
+
+  <!-- Cluster pills -->
+  <span class="filter-label">📌 ประเด็น:</span>
+  <div class="cluster-pills" id="clusterPills"></div>
+
+  <div style="display:flex;gap:.4rem;margin-left:.4rem">
+    <button class="btn-reset" onclick="resetFilters()" title="รีเซ็ท filter ทั้งหมด">↺ รีเซ็ท</button>
+    <button class="btn-quickfilter" onclick="quickFilterFFReady()">🚀 FF→SF พร้อมต่อยอด</button>
+    <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
+  </div>
+
+  <div class="filter-summary" id="filterSummary">กำลังโหลด...</div>
+</div>
+
+<!-- ════════ TABS ════════ -->
+<nav class="tabs">
+  <button class="active" onclick="showTab('overview',this)">📊 ภาพรวม</button>
+  <button onclick="showTab('transition',this)">🚀 FF→SF Transition</button>
+  <button onclick="showTab('heatmap',this)">🗺️ Heatmap พื้นที่</button>
+  <button onclick="showTab('issues',this)">📌 ประเด็นวิจัย</button>
+  <button onclick="showTab('timeline',this)">📅 Timeline</button>
+</nav>
+
+<!-- ════════ TAB CONTENT ════════ -->
+<div class="tab-body">
+
+<!-- ── TAB 1: OVERVIEW ────────────────────────────────────────────────── -->
+<section id="tab-overview" class="tab-panel active">
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi"><div class="kpi-icon">📁</div><div class="kpi-val" id="k-total">-</div><div class="kpi-lbl">โครงการทั้งหมด</div><div class="kpi-sub" id="k-total-sub"></div></div>
+    <div class="kpi amber"><div class="kpi-icon">💵</div><div class="kpi-val" id="k-budget">-</div><div class="kpi-lbl">งบประมาณรวม (ล้านบาท)</div><div class="kpi-sub" id="k-budget-sub"></div></div>
+    <div class="kpi ff"><div class="kpi-icon">🏛️</div><div class="kpi-val" id="k-agency">-</div><div class="kpi-lbl">หน่วยงานที่รับผิดชอบ</div><div class="kpi-sub"></div></div>
+    <div class="kpi warn"><div class="kpi-icon">🎯</div><div class="kpi-val" id="k-ready">-</div><div class="kpi-lbl">โครงการ TRL 4-9 (พร้อมต่อยอด)</div><div class="kpi-sub" id="k-ready-sub"></div></div>
+    <div class="kpi sf"><div class="kpi-icon">⚡</div><div class="kpi-val" id="k-ffsf">-</div><div class="kpi-lbl">FF พร้อมย้ายเป็น SF</div><div class="kpi-sub" id="k-ffsf-sub"></div></div>
+  </div>
+  <div class="grid g12" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">📊 โครงการ × ปีงบประมาณ × ประเภททุน</div>
+      <div class="chart-wrap h320"><canvas id="c-year-fund"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔵 สัดส่วนประเด็นวิจัย (8 clusters)</div>
+      <div class="chart-wrap h320"><canvas id="c-cluster-donut"></canvas></div>
+    </div>
+  </div>
+  <div class="grid g21">
+    <div class="card">
+      <div class="card-title">🏛️ Top 15 หน่วยงาน — จำนวนโครงการ</div>
+      <div class="chart-wrap h360"><canvas id="c-agency-bar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧪 TRL Distribution</div>
+      <div class="chart-wrap h360"><canvas id="c-trl-donut"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TAB 2: FF→SF TRANSITION ──────────────────────────────────────── -->
+<section id="tab-transition" class="tab-panel">
+  <div class="grid g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">🫧 Bubble: TRL × จำนวนโครงการ × งบประมาณ <span class="badge">คลิกฟองเพื่อดูรายการ</span></div>
+      <div class="chart-wrap h360"><canvas id="c-bubble"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔽 Funnel: Pipeline FF→SF</div>
+      <div class="funnel-wrap" id="funnelWrap" style="margin-top:.5rem"></div>
+    </div>
+  </div>
+  <div class="grid g13" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">📋 Heatmap หน่วยงาน × TRL Group <span class="badge">คลิก cell → รายการโครงการ</span></div>
+      <div class="heatmap-wrap"><table class="heatmap" id="agTrlHeatmap"></table></div>
+    </div>
+    <div class="proj-panel" id="projPanel">
+      <h4>📂 เลือก cell ในตาราง Heatmap เพื่อดูรายการโครงการ</h4>
+      <div style="color:var(--muted);font-size:.75rem;text-align:center;margin-top:2rem">←  คลิก cell</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 Agency Comparison Table <span class="badge">คลิก column header เพื่อเรียง</span></div>
+    <div style="overflow:auto;max-height:300px">
+      <table class="ag-table" id="agCompTable">
+        <thead><tr>
+          <th onclick="sortAgTable(0)">หน่วยงาน</th>
+          <th onclick="sortAgTable(1)">FF TRL1-3</th>
+          <th onclick="sortAgTable(2)">FF TRL4-6 🟡</th>
+          <th onclick="sortAgTable(3)">FF TRL7-9 🔴</th>
+          <th onclick="sortAgTable(4)">SF TRL7-9 ✅</th>
+          <th onclick="sortAgTable(5)">พร้อมต่อยอด</th>
+          <th onclick="sortAgTable(6)">งบรวม (ล้าน)</th>
+        </tr></thead>
+        <tbody id="agCompBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── TAB 3: HEATMAP พื้นที่ ──────────────────────────────────────── -->
+<section id="tab-heatmap" class="tab-panel">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">🗺️ Heatmap พื้นที่วิจัย × ประเด็น
+      <span class="badge" id="hmToggleLabel">แสดงตามจำนวนโครงการ</span>
+      <div style="margin-left:auto;display:flex;gap:.4rem">
+        <button class="btn-toggle active" onclick="setHmMode('count',this)">จำนวนโครงการ</button>
+        <button class="btn-toggle" onclick="setHmMode('budget',this)">งบประมาณ</button>
+        <button class="btn-toggle" onclick="setHmMode('trl49',this)">TRL 4-9 only</button>
+      </div>
+    </div>
+    <div class="heatmap-wrap" style="max-height:500px"><table class="heatmap" id="areaClusterHeatmap"></table></div>
+  </div>
+</section>
+
+<!-- ── TAB 4: ประเด็นวิจัย ──────────────────────────────────────────── -->
+<section id="tab-issues" class="tab-panel">
+  <div class="issue-grid" id="issueCardGrid" style="margin-bottom:1rem"></div>
+  <div class="grid g21" id="issueDrillWrap" style="display:none">
+    <div class="card" id="issueDrillLeft">
+      <div class="card-title" id="issueDrillTitle">ประเด็นที่เลือก</div>
+      <div class="chart-wrap h280"><canvas id="c-issue-trl"></canvas></div>
+      <div style="margin-top:.8rem"><canvas id="c-issue-fund" class="h200" style="height:160px"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="issueProjTitle">โครงการในประเด็น</div>
+      <div class="proj-panel" id="issueProjPanel" style="max-height:460px;background:transparent;border:none;padding:0"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TAB 5: TIMELINE ──────────────────────────────────────────────── -->
+<section id="tab-timeline" class="tab-panel">
+  <div class="grid g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">📈 Trend FF vs SF โครงการ รายปี</div>
+      <div class="chart-wrap h280"><canvas id="c-tl-trend"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 งบประมาณ FF vs SF รายปี (ล้านบาท)</div>
+      <div class="chart-wrap h280"><canvas id="c-tl-budget"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">🗓️ Heatmap ประเด็น × ปี — จำนวนโครงการใหม่</div>
+    <div class="heatmap-wrap" style="max-height:280px"><table class="heatmap" id="issueYearHeatmap"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 TRL Distribution รายปี (Stacked)</div>
+    <div class="chart-wrap h300"><canvas id="c-tl-trl-year"></canvas></div>
+  </div>
+</section>
+
+</div><!-- tab-body -->
+</div><!-- layout -->
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- DATA + JAVASCRIPT -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<script src="data.js"></script>
+<script>
+// ── DECODE ROWS ───────────────────────────────────────────────────────────
+// cols: [id, ag_i, fund_i, trl, yr_offset, budget, stat_i, oecd_i, cl_i, area_i, cont]
+const FUNDS    = _RAW.funds;      // ['FF','SF','RU']
+const AGENCIES = _RAW.agencies;
+const OECDS    = _RAW.oecds;
+const STATUSES = _RAW.statuses;
+const AREAS    = _RAW.areas;
+const CLUSTERS = _RAW.clusters;  // [{id,th,en,color}]
+const NAMES    = _RAW.names;
+const YEARS    = [2563,2564,2565,2566,2567,2568,2569];
+
+// Build decoded records array (fast — no object creation per row in filters)
+const RAW = _RAW.rows; // [[id,ag_i,fund_i,trl,yr,budget,stat_i,oecd_i,cl_i,area_i,cont], ...]
+// col indices
+const CI = {id:0,ag:1,fund:2,trl:3,yr:4,budget:5,stat:6,oecd:7,cl:8,area:9,cont:10};
+
+// ── FILTER STATE ──────────────────────────────────────────────────────────
+let F = {
+  years: new Set(YEARS.map((_,i)=>i)),  // 0-6 offsets
+  fund: 'ALL',
+  trl: 'ALL',
+  agency: '',
+  clusters: new Set(CLUSTERS.map(c=>c.id)),
+  ffReady: false,
+};
+let filteredRows = [];
+let chartInstances = {};
+let agTableSortCol = 5, agTableSortAsc = false;
+let hmMode = 'count';
+let selectedCluster = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const fmtN  = n => new Intl.NumberFormat('th-TH').format(Math.round(n));
+const fmtM  = n => fmtN(Math.round(n/1e6));
+const fmtMd = n => (n/1e6).toFixed(1);
+function trlGroup(t){ return t>=7?'7-9': t>=4?'4-6': t>=1?'1-3':'N/A' }
+function trlColor(t){ return t>=7?'#ef4444': t>=4?'#f59e0b':'#64748b' }
+function fundColor(f){ return f===0?'#3b82f6': f===1?'#10b981':'#a855f7' }
+function clColor(ci){ return CLUSTERS[ci]?.color||'#4A5D6E' }
+function mkChart(id,type,labels,datasets,opts={}){
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  if(chartInstances[id]) chartInstances[id].destroy();
+  chartInstances[id]=new Chart(ctx,{type,
+    data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:opts.legend!==false,position:opts.legendPos||'top',
+        labels:{color:'#5B7094',font:{size:10},usePointStyle:true,padding:8}},
+        tooltip:{callbacks:{label:opts.ttLabel||undefined}},
+      },
+      scales:opts.scales||{},
+      ...opts.extra
+    }
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init(){
+  buildYearPills();
+  buildClusterPills();
+  populateAgencyFilter();
+  applyFilters();
+}
+
+function buildYearPills(){
+  const wrap=document.getElementById('yearPills');
+  YEARS.forEach((y,i)=>{
+    const b=document.createElement('button');
+    b.className='year-pill active'; b.textContent=y;
+    b.onclick=()=>{ F.years.has(i)?F.years.delete(i):F.years.add(i);
+      b.classList.toggle('active',F.years.has(i)); applyFilters(); };
+    wrap.appendChild(b);
+  });
+}
+
+function buildClusterPills(){
+  const wrap=document.getElementById('clusterPills');
+  CLUSTERS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cluster-pill active'; b.textContent=c.th; b.title=c.en;
+    b.style.setProperty('--cc',c.color);
+    b.onclick=()=>{
+      if(F.clusters.has(c.id)) F.clusters.delete(c.id);
+      else F.clusters.add(c.id);
+      b.classList.toggle('active',F.clusters.has(c.id));
+      if(b.classList.contains('active')) b.style.background=c.color+'33';
+      else b.style.background='';
+      applyFilters();
+    };
+    b.style.background=c.color+'33'; b.style.borderColor=c.color+'66'; b.style.color=c.color;
+    wrap.appendChild(b);
+  });
+}
+
+function populateAgencyFilter(){
+  const sel=document.getElementById('agencyFilter');
+  AGENCIES.forEach(a=>{
+    const o=document.createElement('option');
+    o.value=a; o.textContent=a.length>40?a.substring(0,40)+'…':a;
+    sel.appendChild(o);
+  });
+}
+
+function toggleFund(v,btn){
+  F.fund=v; F.ffReady=false;
+  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); applyFilters();
+}
+function toggleTRL(v,btn){
+  F.trl=v; F.ffReady=false;
+  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); applyFilters();
+}
+function quickFilterFFReady(){
+  F.fund='FF'; F.trl='4-9'; F.ffReady=true;
+  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-fund="FF"]').classList.add('active');
+  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  applyFilters();
+}
+
+// ── CORE FILTER ENGINE ────────────────────────────────────────────────────
+function applyFilters(){
+  const agSel = document.getElementById('agencyFilter').value;
+  const agIdx = agSel ? AGENCIES.indexOf(agSel) : -1;
+
+  filteredRows = RAW.filter(r=>{
+    if(!F.years.has(r[CI.yr])) return false;
+    const fundStr = FUNDS[r[CI.fund]];
+    if(F.fund!=='ALL' && fundStr!==F.fund) return false;
+    if(F.ffReady && (fundStr!=='FF' || r[CI.trl]<4)) return false;
+    const tg = trlGroup(r[CI.trl]);
+    if(F.trl==='ALL'){}
+    else if(F.trl==='4-9'){ if(r[CI.trl]<4) return false; }
+    else if(tg!==F.trl) return false;
+    if(agIdx>=0 && r[CI.ag]!==agIdx) return false;
+    if(!F.clusters.has(CLUSTERS[r[CI.cl]]?.id)) return false;
+    return true;
+  });
+
+  updateFilterSummary();
+  refreshActiveTab();
+}
+
+function updateFilterSummary(){
+  const t = filteredRows.length, all=RAW.length;
+  document.getElementById('filterSummary').textContent =
+    `กรองแล้ว: ${fmtN(t)} โครงการ จาก ${fmtN(all)} โครงการทั้งหมด`;
+}
+
+// ── TAB MANAGEMENT ────────────────────────────────────────────────────────
+let activeTab='overview';
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  activeTab=id;
+  refreshTab(id);
+}
+function refreshActiveTab(){ refreshTab(activeTab); }
+function refreshTab(id){
+  if(id==='overview') renderOverview();
+  else if(id==='transition') renderTransition();
+  else if(id==='heatmap') renderHeatmap();
+  else if(id==='issues') renderIssues();
+  else if(id==='timeline') renderTimeline();
+}
+
+// ─── AGGREGATE HELPERS ────────────────────────────────────────────────────
+function aggByField(rows, colIdx, lookup){
+  const m={};
+  rows.forEach(r=>{ const k=r[colIdx]; m[k]=(m[k]||0)+1; });
+  return m;
+}
+function aggBudgetByField(rows, colIdx){
+  const m={};
+  rows.forEach(r=>{ const k=r[colIdx]; m[k]=(m[k]||0)+r[CI.budget]; });
+  return m;
+}
+
+// ── TAB 1: OVERVIEW ───────────────────────────────────────────────────────
+function renderOverview(){
+  const rows=filteredRows;
+
+  // KPIs
+  const total=rows.length;
+  const totalBudget=rows.reduce((s,r)=>s+r[CI.budget],0);
+  const agencies=new Set(rows.map(r=>r[CI.ag])).size;
+  const rdy=rows.filter(r=>r[CI.trl]>=4).length;
+  const ffRdy=rows.filter(r=>FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4).length;
+  document.getElementById('k-total').textContent=fmtN(total);
+  document.getElementById('k-total-sub').textContent='โครงการทั้งหมด (หลังกรอง)';
+  document.getElementById('k-budget').textContent=fmtM(totalBudget);
+  document.getElementById('k-budget-sub').textContent=fmtN(totalBudget)+' บาท';
+  document.getElementById('k-agency').textContent=fmtN(agencies);
+  document.getElementById('k-ready').textContent=fmtN(rdy);
+  document.getElementById('k-ready-sub').textContent=(total?((rdy/total*100).toFixed(1)):'0')+'% ของทั้งหมด';
+  document.getElementById('k-ffsf').textContent=fmtN(ffRdy);
+  document.getElementById('k-ffsf-sub').textContent='FF TRL 4-9';
+
+  // Stacked bar: year × fund
+  const yrFF=new Array(7).fill(0), yrSF=new Array(7).fill(0), yrRU=new Array(7).fill(0);
+  rows.forEach(r=>{
+    if(FUNDS[r[CI.fund]]==='FF') yrFF[r[CI.yr]]++;
+    else if(FUNDS[r[CI.fund]]==='SF') yrSF[r[CI.yr]]++;
+    else yrRU[r[CI.yr]]++;
+  });
+  mkChart('c-year-fund','bar',YEARS.map(y=>String(y)),[
+    {label:'FF',data:yrFF,backgroundColor:'#3b82f6bb',borderRadius:3},
+    {label:'SF',data:yrSF,backgroundColor:'#10b981bb',borderRadius:3},
+    {label:'อื่นๆ',data:yrRU,backgroundColor:'#a855f7bb',borderRadius:3},
+  ],{extra:{scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#5B7094'}},
+      y:{stacked:true,grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
+
+  // Cluster donut
+  const clCounts=new Array(CLUSTERS.length).fill(0);
+  rows.forEach(r=>clCounts[r[CI.cl]]++);
+  mkChart('c-cluster-donut','doughnut',
+    CLUSTERS.map(c=>c.th),
+    [{data:clCounts,backgroundColor:CLUSTERS.map(c=>c.color),borderWidth:1,hoverOffset:8}],
+    {extra:{cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:9},color:'#5B7094'}}}},
+     ttLabel:ctx=>`${fmtN(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)`});
+
+  // Agency bar (top15)
+  const agCt=aggByField(rows,CI.ag);
+  const topAg=Object.entries(agCt).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  mkChart('c-agency-bar','bar',topAg.map(([i])=>{ const s=AGENCIES[i]; return s.length>22?s.substring(0,22)+'…':s; }),
+    [{label:'โครงการ',data:topAg.map(([,c])=>c),backgroundColor:'#0052A5bb',borderRadius:4}],
+    {legend:false,extra:{indexAxis:'y',scales:{
+      x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}},
+      y:{grid:{display:false},ticks:{color:'#5B7094',font:{size:9}}}}}});
+
+  // TRL donut
+  const trlCt=[0,0,0,0,0,0,0,0,0];
+  rows.forEach(r=>{ if(r[CI.trl]>=1&&r[CI.trl]<=9) trlCt[r[CI.trl]-1]++; });
+  const trlColors=['#64748b','#64748b','#64748b','#f59e0b','#f59e0b','#f59e0b','#ef4444','#ef4444','#ef4444'];
+  mkChart('c-trl-donut','doughnut',
+    ['TRL1','TRL2','TRL3','TRL4','TRL5','TRL6','TRL7','TRL8','TRL9'],
+    [{data:trlCt,backgroundColor:trlColors,borderWidth:1,hoverOffset:6}],
+    {extra:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:9},color:'#5B7094',padding:5}}}}});
+}
+
+// ── TAB 2: TRANSITION ────────────────────────────────────────────────────
+function renderTransition(){
+  const rows=filteredRows;
+
+  // Bubble: X=TRL, Y=count, Size=budget, Color=cluster
+  const bubble_data=[];
+  const trlClCt={};
+  const trlClBudget={};
+  rows.forEach(r=>{
+    if(r[CI.trl]<1)return;
+    const key=`${r[CI.trl]}_${r[CI.cl]}`;
+    trlClCt[key]=(trlClCt[key]||0)+1;
+    trlClBudget[key]=(trlClBudget[key]||0)+r[CI.budget];
+  });
+  CLUSTERS.forEach((c,ci)=>{
+    for(let t=1;t<=9;t++){
+      const k=`${t}_${ci}`, ct=trlClCt[k]||0;
+      if(ct>0) bubble_data.push({x:t,y:ct,r:Math.min(Math.sqrt(trlClBudget[k]||0)/3000,28),
+        label:c.th, color:c.color, budget:trlClBudget[k]||0});
+    }
+  });
+
+  const bubbleDS=CLUSTERS.map((c,ci)=>({
+    label:c.th,
+    data:bubble_data.filter(d=>d.color===c.color).map(d=>({x:d.x,y:d.y,r:Math.max(d.r,3)})),
+    backgroundColor:c.color+'99', borderColor:c.color,
+  }));
+  mkChart('c-bubble','bubble',null,bubbleDS,{
+    legendPos:'bottom',
+    extra:{scales:{
+      x:{min:0,max:10,title:{display:true,text:'TRL Level',color:'#5B7094'},ticks:{color:'#5B7094',stepSize:1},grid:{color:'rgba(0,0,0,.07)'}},
+      y:{title:{display:true,text:'จำนวนโครงการ',color:'#5B7094'},ticks:{color:'#5B7094'},grid:{color:'rgba(0,0,0,.07)'}},
+    }},
+    ttLabel:ctx=>{const d=ctx.raw; return `TRL${ctx.parsed.x}: ${fmtN(ctx.parsed.y)} โครงการ | งบ ${fmtM(d.budget||0)} ล้าน`}
+  });
+
+  // Funnel
+  const ffAll=rows.filter(r=>FUNDS[r[CI.fund]]==='FF').length;
+  const ff13=rows.filter(r=>FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=1&&r[CI.trl]<=3).length;
+  const ff46=rows.filter(r=>FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4&&r[CI.trl]<=6).length;
+  const ff79=rows.filter(r=>FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=7).length;
+  const sf79=rows.filter(r=>FUNDS[r[CI.fund]]==='SF'&&r[CI.trl]>=7).length;
+  const maxF=Math.max(ff13,ff46,ff79,sf79,1);
+  const stages=[
+    {label:'FF ทั้งหมด',count:ffAll,pct:100,color:'#3b82f6'},
+    {label:'FF TRL 1-3 (ระยะต้น)',count:ff13,pct:ff13/Math.max(ffAll,1)*100,color:'#64748b'},
+    {label:'FF TRL 4-6 🟡 กำลังพร้อม',count:ff46,pct:ff46/Math.max(ffAll,1)*100,color:'#f59e0b'},
+    {label:'FF TRL 7-9 🔴 พร้อมแล้ว',count:ff79,pct:ff79/Math.max(ffAll,1)*100,color:'#ef4444'},
+    {label:'SF TRL 7-9 ✅ Benchmark',count:sf79,pct:sf79/Math.max(rows.length,1)*100,color:'#10b981'},
+  ];
+  document.getElementById('funnelWrap').innerHTML=stages.map(s=>`
+    <div class="funnel-stage">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${s.pct}%;background:${s.color}">${fmtN(s.count)}</div></div>
+      <div class="funnel-count">${s.pct.toFixed(1)}%</div>
+    </div>`).join('');
+
+  // Heatmap ag × TRL group (top25 agencies by project count)
+  const agCt={};
+  rows.forEach(r=>agCt[r[CI.ag]]=(agCt[r[CI.ag]]||0)+1);
+  const topAgIdxs=Object.entries(agCt).sort((a,b)=>b[1]-a[1]).slice(0,25).map(([i])=>parseInt(i));
+  
+  // Build heatmap data: ag × [FF13,FF46,FF79,SF13,SF46,SF79]
+  const hmData={};
+  topAgIdxs.forEach(ai=>{ hmData[ai]={ff13:0,ff46:0,ff79:0,sf13:0,sf46:0,sf79:0}; });
+  rows.forEach(r=>{
+    if(!hmData[r[CI.ag]])return;
+    const f=FUNDS[r[CI.fund]],t=r[CI.trl];
+    if(f==='FF'){
+      if(t>=1&&t<=3)hmData[r[CI.ag]].ff13++;
+      else if(t>=4&&t<=6)hmData[r[CI.ag]].ff46++;
+      else if(t>=7)hmData[r[CI.ag]].ff79++;
+    }else if(f==='SF'){
+      if(t>=1&&t<=3)hmData[r[CI.ag]].sf13++;
+      else if(t>=4&&t<=6)hmData[r[CI.ag]].sf46++;
+      else if(t>=7)hmData[r[CI.ag]].sf79++;
+    }
+  });
+
+  const cols=['FF TRL1-3','FF TRL4-6 🟡','FF TRL7-9 🔴','SF TRL1-3','SF TRL4-6','SF TRL7-9 ✅'];
+  const colKeys=['ff13','ff46','ff79','sf13','sf46','sf79'];
+  const colColors=['rgba(59,130,246,','rgba(245,158,11,','rgba(239,68,68,','rgba(16,185,129,','rgba(16,185,129,','rgba(16,185,129,'];
+  let maxCell=1;
+  topAgIdxs.forEach(ai=>colKeys.forEach(k=>{ if(hmData[ai][k]>maxCell)maxCell=hmData[ai][k]; }));
+
+  let tbl='<thead><tr><th>หน่วยงาน</th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+  topAgIdxs.forEach(ai=>{
+    const agName=AGENCIES[ai]; const shortName=agName.length>28?agName.substring(0,28)+'…':agName;
+    tbl+=`<tr><td class="row-label" title="${agName}">${shortName}</td>`;
+    colKeys.forEach((k,ci)=>{
+      const v=hmData[ai][k],opacity=(v/maxCell)*0.85+0.05;
+      tbl+=`<td style="background:${colColors[ci]}${opacity.toFixed(2)})" 
+            onclick="showHeatmapProjects(${ai},'${k}')" title="${agName} | ${cols[ci]}: ${v} โครงการ">
+            ${v||''}</td>`;
+    });
+    tbl+='</tr>';
+  });
+  tbl+='</tbody>';
+  document.getElementById('agTrlHeatmap').innerHTML=tbl;
+
+  // Agency comparison table
+  renderAgTable(topAgIdxs, hmData);
+}
+
+function showHeatmapProjects(agIdx, colKey){
+  const fundFilter = colKey.startsWith('ff')?'FF':'SF';
+  const trlMin = colKey.includes('13')?1:colKey.includes('46')?4:7;
+  const trlMax = colKey.includes('13')?3:colKey.includes('46')?6:9;
+  const proj = filteredRows.filter(r=>
+    r[CI.ag]===agIdx && FUNDS[r[CI.fund]]===fundFilter && r[CI.trl]>=trlMin && r[CI.trl]<=trlMax
+  );
+  const ag = AGENCIES[agIdx];
+  const panel = document.getElementById('projPanel');
+  panel.innerHTML=`<h4>📂 ${ag.substring(0,35)} | ${fundFilter} TRL${trlMin}-${trlMax} (${proj.length} โครงการ)</h4>`+
+    proj.slice(0,50).map(r=>{
+      const name=NAMES[String(r[CI.id])]||`โครงการ #${r[CI.id]}`;
+      const fundBadge=`badge-${FUNDS[r[CI.fund]].toLowerCase()}`;
+      const trlBadge=`badge-trl${trlGroup(r[CI.trl]).replace('-','')}`;
+      return `<div class="proj-item">
+        <div class="pid">#${r[CI.id]}</div>
+        <div class="pname">${name}</div>
+        <div class="pmeta">
+          <span class="badge-trl ${fundBadge}">${FUNDS[r[CI.fund]]}</span>
+          <span class="badge-trl ${trlBadge}">TRL${r[CI.trl]}</span>
+          <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtM(r[CI.budget])} ล้าน</span>
+        </div>
+      </div>`;
+    }).join('')+(proj.length>50?`<div style="color:var(--muted);font-size:.7rem;padding:.4rem">... และอีก ${proj.length-50} โครงการ</div>`:'');
+}
+
+let agSortAsc=false, agSortCol=5;
+function renderAgTable(topAgIdxs, hmData){
+  const rows2=topAgIdxs.map(ai=>{
+    const d=hmData[ai];
+    const rdy=d.ff46+d.ff79;
+    const budget=filteredRows.filter(r=>r[CI.ag]===ai).reduce((s,r)=>s+r[CI.budget],0);
+    return [AGENCIES[ai],d.ff13,d.ff46,d.ff79,d.sf79,rdy,Math.round(budget/1e6)];
+  });
+  rows2.sort((a,b)=>agSortAsc?(a[agSortCol]-b[agSortCol]):(b[agSortCol]-a[agSortCol]));
+  
+  const maxRdy=Math.max(...rows2.map(r=>r[5]),1);
+  document.getElementById('agCompBody').innerHTML=rows2.map(r=>`<tr>
+    <td title="${r[0]}">${r[0].length>30?r[0].substring(0,30)+'…':r[0]}</td>
+    <td>${fmtN(r[1])}</td>
+    <td style="color:var(--trl46);font-weight:700">${fmtN(r[2])}</td>
+    <td style="color:var(--trl79);font-weight:700">${fmtN(r[3])}</td>
+    <td style="color:var(--sf);font-weight:700">${fmtN(r[4])}</td>
+    <td><div style="display:flex;align-items:center;gap:.4rem">
+      <div class="cell-bar" style="width:${(r[5]/maxRdy*80).toFixed(0)}px;background:linear-gradient(90deg,var(--trl46),var(--trl79))"></div>
+      <span style="color:var(--trl46);font-weight:700">${fmtN(r[5])}</span></div></td>
+    <td>${fmtN(r[6])}</td>
+  </tr>`).join('');
+}
+function sortAgTable(col){
+  agSortCol=col; agSortAsc=!agSortAsc; renderTransition();
+}
+
+// ── TAB 3: HEATMAP AREA ──────────────────────────────────────────────────
+function setHmMode(mode,btn){
+  hmMode=mode;
+  document.querySelectorAll('[onclick^="setHmMode"]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHeatmap();
+}
+
+function renderHeatmap(){
+  const rows=filteredRows;
+  // Group top 20 areas
+  const areaCt={};
+  rows.forEach(r=>{ if(r[CI.area]>0) areaCt[r[CI.area]]=(areaCt[r[CI.area]]||0)+1; });
+  const topAreas=Object.entries(areaCt).sort((a,b)=>b[1]-a[1]).slice(0,22).map(([i])=>parseInt(i));
+
+  // Area × Cluster matrix
+  const mat={}; // {areaIdx: {clIdx: value}}
+  topAreas.forEach(ai=>{ mat[ai]={}; CLUSTERS.forEach((_,ci)=>mat[ai][ci]=0); });
+  rows.forEach(r=>{
+    if(!mat[r[CI.area]])return;
+    if(hmMode==='trl49'&&r[CI.trl]<4)return;
+    const v = hmMode==='budget'?r[CI.budget]:1;
+    mat[r[CI.area]][r[CI.cl]]=(mat[r[CI.area]][r[CI.cl]]||0)+v;
+  });
+
+  let maxVal=1;
+  topAreas.forEach(ai=>CLUSTERS.forEach((_,ci)=>{ if(mat[ai][ci]>maxVal)maxVal=mat[ai][ci]; }));
+
+  let tbl='<thead><tr><th>พื้นที่วิจัย</th>'+CLUSTERS.map(c=>`<th style="color:${c.color}">${c.th.substring(0,10)}</th>`).join('')+'<th>รวม</th></tr></thead><tbody>';
+  topAreas.forEach(ai=>{
+    const areaName=AREAS[ai]||`พื้นที่ ${ai}`;
+    tbl+=`<tr><td class="row-label">${areaName}</td>`;
+    let rowTotal=0;
+    CLUSTERS.forEach((c,ci)=>{
+      const v=mat[ai][ci]||0; rowTotal+=v;
+      const opacity=v?Math.min((v/maxVal)*0.9+0.1,0.9):0;
+      const display=hmMode==='budget'&&v>0?fmtMd(v):v||'';
+      tbl+=`<td style="background:${c.color}${opacity>0?Math.round(opacity*255).toString(16).padStart(2,'0'):'00'}">${display}</td>`;
+    });
+    tbl+=`<td style="color:var(--muted);font-weight:700">${hmMode==='budget'?fmtMd(rowTotal):rowTotal}</td></tr>`;
+  });
+  tbl+='</tbody>';
+  document.getElementById('areaClusterHeatmap').innerHTML=tbl;
+}
+
+// ── TAB 4: ISSUES ────────────────────────────────────────────────────────
+function renderIssues(){
+  const rows=filteredRows;
+  const grid=document.getElementById('issueCardGrid');
+  grid.innerHTML='';
+
+  CLUSTERS.forEach((c,ci)=>{
+    const cRows=rows.filter(r=>r[CI.cl]===ci);
+    const t13=cRows.filter(r=>r[CI.trl]>=1&&r[CI.trl]<=3).length;
+    const t46=cRows.filter(r=>r[CI.trl]>=4&&r[CI.trl]<=6).length;
+    const t79=cRows.filter(r=>r[CI.trl]>=7).length;
+    const ff=cRows.filter(r=>FUNDS[r[CI.fund]]==='FF').length;
+    const sf=cRows.filter(r=>FUNDS[r[CI.fund]]==='SF').length;
+    const tot=cRows.length||1;
+    
+    const card=document.createElement('div');
+    card.className='issue-card'+(selectedCluster===ci?' selected':'');
+    card.style.setProperty('--card-color',c.color);
+    card.innerHTML=`
+      <div class="ic-title" style="color:${c.color}">${c.th}</div>
+      <div style="font-size:.68rem;color:var(--muted);margin-bottom:.4rem">${c.en}</div>
+      <div class="ic-count">${fmtN(cRows.length)}</div>
+      <div class="ic-sub">โครงการ · FF ${fmtN(ff)} / SF ${fmtN(sf)}</div>
+      <div style="font-size:.65rem;color:var(--muted)">TRL4-9 พร้อมต่อยอด: <strong style="color:${c.color}">${fmtN(t46+t79)}</strong></div>
+      <div class="ic-trl-bar">
+        <div style="flex:${t13};background:var(--trl13)"></div>
+        <div style="flex:${t46};background:var(--trl46)"></div>
+        <div style="flex:${t79};background:var(--trl79)"></div>
+      </div>`;
+    card.onclick=()=>drillIssue(ci, cRows, c);
+    grid.appendChild(card);
+  });
+}
+
+function drillIssue(ci, cRows, c){
+  selectedCluster=ci;
+  renderIssues();
+  const wrap=document.getElementById('issueDrillWrap');
+  wrap.style.display='grid';
+
+  document.getElementById('issueDrillTitle').textContent=`📌 ${c.th}`;
+  document.getElementById('issueProjTitle').textContent=`โครงการในประเด็น (${fmtN(cRows.length)} โครงการ)`;
+
+  // TRL bar
+  const trlCt=new Array(9).fill(0);
+  cRows.forEach(r=>{ if(r[CI.trl]>=1&&r[CI.trl]<=9)trlCt[r[CI.trl]-1]++; });
+  mkChart('c-issue-trl','bar',['TRL1','TRL2','TRL3','TRL4','TRL5','TRL6','TRL7','TRL8','TRL9'],
+    [{label:'โครงการ',data:trlCt,backgroundColor:
+      ['#64748b','#64748b','#64748b','#f59e0b','#f59e0b','#f59e0b','#ef4444','#ef4444','#ef4444'],
+      borderRadius:4}],
+    {legend:false,extra:{scales:{
+      x:{grid:{display:false},ticks:{color:'#5B7094'}},
+      y:{grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
+
+  // Fund donut
+  const ff=cRows.filter(r=>FUNDS[r[CI.fund]]==='FF').length;
+  const sf=cRows.filter(r=>FUNDS[r[CI.fund]]==='SF').length;
+  const ru=cRows.filter(r=>FUNDS[r[CI.fund]]==='RU').length;
+  mkChart('c-issue-fund','doughnut',['FF','SF','อื่นๆ'],
+    [{data:[ff,sf,ru],backgroundColor:['#3b82f6','#10b981','#a855f7'],borderWidth:1}],
+    {extra:{cutout:'55%',plugins:{legend:{position:'right',labels:{color:'#5B7094',font:{size:9}}}}}});
+
+  // Project list (FF TRL4-9 highlighted first)
+  const sorted=[...cRows].sort((a,b)=>{
+    const aRdy=FUNDS[a[CI.fund]]==='FF'&&a[CI.trl]>=4?1:0;
+    const bRdy=FUNDS[b[CI.fund]]==='FF'&&b[CI.trl]>=4?1:0;
+    return bRdy-aRdy || b[CI.trl]-a[CI.trl] || b[CI.budget]-a[CI.budget];
+  });
+
+  document.getElementById('issueProjPanel').innerHTML=sorted.slice(0,60).map(r=>{
+    const name=NAMES[String(r[CI.id])]||`โครงการ #${r[CI.id]}`;
+    const isRdy=FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4;
+    const f=FUNDS[r[CI.fund]].toLowerCase();
+    const tg=trlGroup(r[CI.trl]).replace('-','');
+    return `<div class="proj-item"${isRdy?' style="border-left:2px solid var(--trl46)"':''}>
+      <div class="pid">#${r[CI.id]}${isRdy?' ⭐':''}</div>
+      <div class="pname">${name}</div>
+      <div class="pmeta">
+        <span class="badge-trl badge-${f}">${FUNDS[r[CI.fund]]}</span>
+        <span class="badge-trl badge-trl${tg}">TRL${r[CI.trl]}</span>
+        <span style="color:var(--muted)">${YEARS[r[CI.yr]]} | ${fmtM(r[CI.budget])} ล้าน</span>
+      </div>
+    </div>`;
+  }).join('')+(cRows.length>60?`<div style="padding:.5rem;color:var(--muted);font-size:.7rem">... และอีก ${cRows.length-60} โครงการ</div>`:'');
+}
+
+// ── TAB 5: TIMELINE ──────────────────────────────────────────────────────
+function renderTimeline(){
+  const rows=filteredRows;
+  const yrFF=new Array(7).fill(0),yrSF=new Array(7).fill(0);
+  const yrBFF=new Array(7).fill(0),yrBSF=new Array(7).fill(0);
+  rows.forEach(r=>{
+    if(FUNDS[r[CI.fund]]==='FF'){ yrFF[r[CI.yr]]++; yrBFF[r[CI.yr]]+=r[CI.budget]; }
+    else if(FUNDS[r[CI.fund]]==='SF'){ yrSF[r[CI.yr]]++; yrBSF[r[CI.yr]]+=r[CI.budget]; }
+  });
+
+  const yrs=YEARS.map(String);
+  mkChart('c-tl-trend','line',yrs,[
+    {label:'FF',data:yrFF,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.15)',tension:.35,fill:true,pointRadius:4},
+    {label:'SF',data:yrSF,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.15)',tension:.35,fill:true,pointRadius:4},
+  ],{extra:{scales:{x:{grid:{display:false},ticks:{color:'#5B7094'}},y:{grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
+
+  mkChart('c-tl-budget','bar',yrs,[
+    {label:'FF (ล้าน)',data:yrBFF.map(v=>Math.round(v/1e6)),backgroundColor:'#3b82f6bb',borderRadius:4},
+    {label:'SF (ล้าน)',data:yrBSF.map(v=>Math.round(v/1e6)),backgroundColor:'#10b981bb',borderRadius:4},
+  ],{extra:{scales:{x:{grid:{display:false},ticks:{color:'#5B7094'}},y:{grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
+
+  // Issue × Year heatmap
+  const mat={}; // cl → [yr0..yr6]
+  CLUSTERS.forEach((_,ci)=>{ mat[ci]=new Array(7).fill(0); });
+  rows.forEach(r=>mat[r[CI.cl]][r[CI.yr]]++);
+  let maxV=1;
+  CLUSTERS.forEach((_,ci)=>mat[ci].forEach(v=>{ if(v>maxV)maxV=v; }));
+
+  let tbl='<thead><tr><th>ประเด็น</th>'+yrs.map(y=>`<th>${y}</th>`).join('')+'</tr></thead><tbody>';
+  CLUSTERS.forEach((c,ci)=>{
+    tbl+=`<tr><td class="row-label" style="color:${c.color}">${c.th}</td>`;
+    mat[ci].forEach(v=>{
+      const op=v?Math.min((v/maxV)*0.9+0.1,0.9):0;
+      tbl+=`<td style="background:${c.color}${op>0?Math.round(op*255).toString(16).padStart(2,'0'):'00'}">${v||''}</td>`;
+    });
+    tbl+='</tr>';
+  });
+  tbl+='</tbody>';
+  document.getElementById('issueYearHeatmap').innerHTML=tbl;
+
+  // TRL by year stacked
+  const trlGroups=['TRL 1-3','TRL 4-6','TRL 7-9'];
+  const trlYr=[[],[],[]]; // [group][year]
+  for(let i=0;i<3;i++) for(let j=0;j<7;j++) trlYr[i].push(0);
+  rows.forEach(r=>{
+    const g=r[CI.trl]>=7?2:r[CI.trl]>=4?1:r[CI.trl]>=1?0:-1;
+    if(g>=0) trlYr[g][r[CI.yr]]++;
+  });
+  mkChart('c-tl-trl-year','bar',yrs,[
+    {label:'TRL 1-3',data:trlYr[0],backgroundColor:'#64748bbb',borderRadius:2},
+    {label:'TRL 4-6 🟡',data:trlYr[1],backgroundColor:'#f59e0bbb',borderRadius:2},
+    {label:'TRL 7-9 🔴',data:trlYr[2],backgroundColor:'#ef4444bb',borderRadius:2},
+  ],{extra:{scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#5B7094'}},y:{stacked:true,grid:{color:'rgba(0,0,0,.07)'},ticks:{color:'#5B7094'}}}}});
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────────────────
+function exportCSV(){
+  const header=['ID','ชื่อโครงการ','หน่วยงาน','ประเภททุน','TRL','TRL_Group','ปีงบประมาณ','งบประมาณ','สถานะ','OECD','พื้นที่','ประเด็น','FF_SF_Readiness'];
+  const trlGrpLabel=t=>t>=7?'TRL 7-9':t>=4?'TRL 4-6':t>=1?'TRL 1-3':'N/A';
+  const readyLabel=r=>{
+    if(FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=7)return 'High';
+    if(FUNDS[r[CI.fund]]==='FF'&&r[CI.trl]>=4)return 'Medium';
+    if(FUNDS[r[CI.fund]]==='SF'&&r[CI.trl]>=7)return 'Benchmark';
+    return '';
+  };
+  const rows2=filteredRows.map(r=>[
+    r[CI.id], (NAMES[String(r[CI.id])]||'').replace(/,/g,''), AGENCIES[r[CI.ag]].replace(/,/g,''),
+    FUNDS[r[CI.fund]], r[CI.trl], trlGrpLabel(r[CI.trl]),
+    YEARS[r[CI.yr]], r[CI.budget], STATUSES[r[CI.stat]],
+    OECDS[r[CI.oecd]], AREAS[r[CI.area]]||'', CLUSTERS[r[CI.cl]]?.th||'', readyLabel(r)
+  ]);
+  const csv=[header,...rows2].map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`วิจัย_ววน_filtered_${filteredRows.length}โครงการ.csv`; a.click();
+}
+
+// ── RESET FILTERS ────────────────────────────────────────────────────────
+function resetFilters(){
+  // Reset year: all selected
+  F.years = new Set(YEARS.map((_,i)=>i));
+  document.querySelectorAll('.year-pill').forEach(b=>b.classList.add('active'));
+
+  // Reset fund
+  F.fund = 'ALL'; F.ffReady = false;
+  document.querySelectorAll('#fundBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-fund="ALL"]').classList.add('active');
+
+  // Reset TRL
+  F.trl = 'ALL';
+  document.querySelectorAll('#trlBtns .btn-toggle').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-trl="ALL"]').classList.add('active');
+
+  // Reset agency
+  document.getElementById('agencyFilter').value = '';
+
+  // Reset clusters: all selected
+  F.clusters = new Set(CLUSTERS.map(c=>c.id));
+  document.querySelectorAll('.cluster-pill').forEach((b,i)=>{
+    b.classList.add('active');
+    b.style.background = CLUSTERS[i].color+'33';
+  });
+
+  // Flash the reset button
+  const btn = document.querySelector('.btn-reset');
+  btn.style.background='#FFEDED'; btn.textContent='✓ รีเซ็ทแล้ว';
+  setTimeout(()=>{ btn.style.background=''; btn.innerHTML='↺ รีเซ็ท'; }, 800);
+
+  applyFilters();
+}
+
+// ── START ─────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
